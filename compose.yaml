@@ -1,0 +1,23 @@
+services:
+  media-collection-web:
+    image: "game-manager:latest"
+    volumes:
+      - ./:/app:z
+    ports:
+      - "3000:3000"
+    links:
+      - "media-collection-db:db"
+    entrypoint: ["npm", "run", "dev"]
+
+  media-collection-db:
+    image: "mariadb:latest"
+    ports:
+      - "3306:3306" 
+    environment:
+      - MARIADB_ROOT_PASSWORD=1234
+    volumes:
+      - media-collection-db:/var/lib/mysql
+
+
+volumes:
+  media-collection-db:
