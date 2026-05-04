@@ -1,27 +1,17 @@
+"use client"
+
 import {
   Card,
-  CardAction,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import {
   Field,
-  FieldContent,
-  FieldDescription,
-  FieldError,
-  FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupText,
-  InputGroupTextarea,
-} from "@/components/ui/input-group";
 import {
   Select,
   SelectContent,
@@ -33,17 +23,16 @@ import {
 } from "@/components/ui/select";
 
 import { Button } from "@/components/ui/button";
-
 import { PackageType } from "../../../../generated/prisma/enums";
 
-import * as z from "zod";
-import { zfd } from "zod-form-data";
 import DBConnection from "../../../utils/DBConnection"
+import { mediaCreate } from "@/actions/media";
 
 // Reimplement this after I transformed the form to a client component
-// import { useState } from "react"
+import { useState } from "react"
+import { Spinner } from "@/components/ui/spinner";
 
-export default async function CreateMedia() {
+export default function CreateMedia() {
   const PackageTypesSelectOptions = Object.keys(PackageType) as Array<keyof typeof PackageType>;
   const PackageTypesListItems = PackageTypesSelectOptions.map((pkgType) => (
     <SelectItem key={pkgType} value={pkgType}>
@@ -51,49 +40,16 @@ export default async function CreateMedia() {
     </SelectItem>
   ));
 
-  // const {isProcessing, setProcessing} = useState(false)
+  const [isProcessing, setProcessing] = useState(false);
   
   async function createMedia(formData: FormData) {
-    "use server";
-    // setProcessing(true)
-    const DBConn = new DBConnection();
-    const prisma = DBConn.connector
-    const movies = await prisma.movie.findMany();
-    console.log("Movies:", movies);
+    
+    setProcessing(true)
+    await mediaCreate(formData);
+    setProcessing(false)
+
     
     console.log(formData);
-
-    const mediaSchema = zfd.formData({
-      title: zfd.text(),
-      rating: zfd.numeric(z.number().max(5)),
-      studio: z.string(),
-      release: zfd.text(z.iso.date()),
-      packageType: z.enum(PackageType),
-      EAN: zfd.numeric()
-    });
-
-    try {
-      const validateResult = mediaSchema.parse(formData);
-      const movie = await prisma.movie.create({
-        data: {
-          title: validateResult.title,
-          rating: validateResult.rating,
-          studio: validateResult.studio,
-          release: new Date(validateResult.release),
-          packageType: validateResult.packageType,
-          EAN: validateResult.EAN
-        }
-      });
-      console.log(movie)
-
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        console.error("Validation Error:", error);
-      }
-      else{
-        console.error(error)
-      }
-    }
   }
 
   return (
@@ -144,7 +100,12 @@ export default async function CreateMedia() {
             </Select>
           </Field>
           <Field className="mt-3">
-            <Button type="submit">Create</Button>
+            <Button disabled={isProcessing} type="submit">
+              {isProcessing ? (
+              <Spinner data-icon="inline-start" />
+              ): null}
+              Create
+              </Button>
           </Field>
         </form>
       </CardContent>
