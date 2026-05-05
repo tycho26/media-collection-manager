@@ -28,7 +28,6 @@ import { PackageType } from "../../../../generated/prisma/enums";
 import DBConnection from "../../../utils/DBConnection"
 import { mediaCreate } from "@/actions/media";
 
-// Reimplement this after I transformed the form to a client component
 import { useState } from "react"
 import { Spinner } from "@/components/ui/spinner";
 
@@ -43,13 +42,9 @@ export default function CreateMedia() {
   const [isProcessing, setProcessing] = useState(false);
   
   async function createMedia(formData: FormData) {
-    
     setProcessing(true)
     await mediaCreate(formData);
     setProcessing(false)
-
-    
-    console.log(formData);
   }
 
   return (

@@ -1,21 +1,14 @@
 'use server'
 
-import * as React from "react"
 import DBConnection from "@/utils/DBConnection"
 import { validateMedia } from "./validation";
-import z from "zod";
 
 async function create(formData: FormData) {
-    
-    // setProcessing(true)
     const DBConn = new DBConnection();
     const prisma = DBConn.connector
 
-    
-
     try {
       const validateResult = await validateMedia(formData);
-      // Implement check for validation success or errors
       if(!validateResult.error){
         const movie = await prisma.movie.create({
           data: {
@@ -27,16 +20,14 @@ async function create(formData: FormData) {
             EAN: validateResult.data.EAN
           }
         });
-        console.log(movie)
+      }
+      else{
+        // Implement validation errors display in UI!
+        console.error("Validation Error:", validateResult.error);
       }
 
     } catch (error) {
-      if (error instanceof z.ZodError) {
-        console.error("Validation Error:", error);
-      }
-      else{
         console.error(error)
-      }
     }
   }
 
