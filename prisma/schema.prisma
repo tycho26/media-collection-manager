@@ -5,8 +5,12 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider               = "prisma-client"
+  output                 = "../generated/prisma"
+  moduleFormat           = "esm"
+  generatedFileExtension = "ts"
+  importFileExtension    = "ts"
+  runtime = "nodejs"
 }
 
 datasource db {
@@ -32,8 +36,8 @@ model Movie {
   rating      Int
   EAN         Int
   packageType PackageType
-  Genre       MovieOnGenre[]      @relation("MovieToGenre")
-  mediaTypes  MediaTypeOnMovies[] @relation("MovieToMediaType")
+  // Genre       MovieOnGenre[]      @relation("MovieToGenre")
+  // mediaTypes  MediaTypeOnMovies[] @relation("MovieToMediaType")
 }
 
 model Genre {
@@ -44,7 +48,7 @@ model Genre {
 
 model MovieOnGenre {
   id      String @id @default(uuid())
-  movie   Movie  @relation("MovieToGenre", fields: [movieId], references: [id])
+  // movie   Movie  @relation("MovieToGenre", fields: [movieId], references: [id])
   movieId String
   genre   Genre  @relation("GenreToMovie", fields: [genreId], references: [id])
   genreId String
@@ -58,7 +62,7 @@ model MediaType {
 
 model MediaTypeOnMovies {
   id          String    @id @default(uuid())
-  movie       Movie     @relation("MovieToMediaType", fields: [movieId], references: [id])
+  // movie       Movie     @relation("MovieToMediaType", fields: [movieId], references: [id])
   movieId     String
   mediaType   MediaType @relation("MediaTypeToMediaTypeMovie", fields: [mediaTypeId], references: [id])
   mediaTypeId String
