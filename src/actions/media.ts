@@ -2,6 +2,7 @@
 
 import DBConnection from "@/utils/DBConnection"
 import { validateMedia } from "./validation";
+import * as z from "zod";
 
 async function create(formData: FormData) {
     const DBConn = new DBConnection();
@@ -22,8 +23,8 @@ async function create(formData: FormData) {
         });
       }
       else{
-        // Implement validation errors display in UI!
         console.error("Validation Error:", validateResult.error);
+        return z.flattenError(validateResult.error)
       }
 
     } catch (error) {

@@ -30,3 +30,4 @@ async function media(data:FormData): Promise<z.ZodSafeParseResult<MovieFormType>
 
 
 export {media as validateMedia}
+export type {MovieFormType};

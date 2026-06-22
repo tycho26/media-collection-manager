@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/card";
 import {
   Field,
+  FieldError,
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -30,6 +31,8 @@ import { mediaCreate } from "@/actions/media";
 
 import { useState } from "react"
 import { Spinner } from "@/components/ui/spinner";
+import { object, ZodError } from "zod";
+import { MovieFormType } from "@/actions/validation";
 
 export default function CreateMedia() {
   const PackageTypesSelectOptions = Object.keys(PackageType) as Array<keyof typeof PackageType>;
@@ -40,10 +43,22 @@ export default function CreateMedia() {
   ));
 
   const [isProcessing, setProcessing] = useState(false);
+  const [formErrors, setErrors] = useState({});
   
   async function createMedia(formData: FormData) {
     setProcessing(true)
-    await mediaCreate(formData);
+    const errors:object|void = await mediaCreate(formData);
+    if(errors instanceof Object){
+      //TODO: Maak aparte utils file voor herbruikbare types en interfaces
+      //TODO: Maak type voor flattenedErrors Zod object
+      //TODO: Maak interface voor generic formErrors object
+      //TODO: Maak type (gebaseerd op bovenstaande interface) 
+      let formErrorsDOM = {}
+      Object.keys(errors.fieldErrors).forEach((field)=>{
+        formErrorsDOM[field] = errors.fieldErrors[field].map((error) => <FieldError>{error}</FieldError>)
+      })
+      setErrors(formErrorsDOM)
+    }
     setProcessing(false)
   }
 
@@ -54,15 +69,17 @@ export default function CreateMedia() {
       </CardHeader>
       <CardContent>
         <form action={createMedia}>
-          <Field>
+          <Field data-invalid={!!formErrors.title}>
             <FieldLabel>Title</FieldLabel>
             <Input name="title" id="media-title" />
+            {formErrors.title}
           </Field>
-          <Field>
+          <Field data-invalid={!!formErrors.EAN}>
             <FieldLabel>EAN</FieldLabel>
             <Input name="EAN" id="ean" />
+            {formErrors.EAN}
           </Field>
-          <Field>
+          <Field data-invalid={!!formErrors.Rating}>
             <FieldLabel>Rating</FieldLabel>
             <Input
               name="rating"
@@ -71,16 +88,19 @@ export default function CreateMedia() {
               min="0"
               max="5"
             />
+            {formErrors.Rating}
           </Field>
-          <Field>
+          <Field data-invalid={!!formErrors.Studio}>
             <FieldLabel>Studio</FieldLabel>
             <Input name="studio" id="media-studio" />
+            {formErrors.Studio}
           </Field>
-          <Field>
+          <Field data-invalid={!!formErrors.Release}>
             <FieldLabel>Release</FieldLabel>
             <Input name="release" type="date" id="media-release" />
+            {formErrors.Release}
           </Field>
-          <Field>
+          <Field data-invalid={!!formErrors.PackageType}>
             <FieldLabel>Package Type</FieldLabel>
             <Select name="packageType">
               <SelectTrigger className="w-full max-w-48">
@@ -93,6 +113,7 @@ export default function CreateMedia() {
                 </SelectGroup>
               </SelectContent>
             </Select>
+            {formErrors.PackageType}
           </Field>
           <Field className="mt-3">
             <Button disabled={isProcessing} type="submit">
